@@ -7,12 +7,13 @@ import com.example.application.data.service.TodoRepository;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.connect.Endpoint;
 
+import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Endpoint
-@AnonymousAllowed
+@PermitAll
 public class NoteEndpoint {
     private NoteRepository repository;
     private TodoRepository todoRepository;

@@ -2,13 +2,13 @@ package com.example.application.data.endpoint;
 
 import com.example.application.data.entity.Todo;
 import com.example.application.data.service.TodoRepository;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.connect.Endpoint;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 
 @Endpoint
-@AnonymousAllowed
+@PermitAll
 public class TodoEndpoint {
     private TodoRepository repository;
 
