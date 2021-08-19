@@ -1,6 +1,6 @@
 import { Route } from '@vaadin/router';
 import './views/main-layout';
-import './views/todo/todo-view';
+import './views/home/home-view';
 
 export type ViewRoute = Route & {
   title?: string;
@@ -12,13 +12,13 @@ export const views: ViewRoute[] = [
   // place routes below (more info https://vaadin.com/docs/latest/fusion/routing/overview)
   {
     path: '',
-    component: 'todo-view',
+    component: 'home-view',
     icon: '',
     title: '',
   },
   {
-    path: 'todo',
-    component: 'todo-view',
+    path: 'home',
+    component: 'home-view',
     icon: 'la la-list-alt',
     title: 'Todo',
   },
