@@ -9,7 +9,7 @@ import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-checkbox';
 import '@vaadin/vaadin-icons/vaadin-icons';
-// import '@vaadin/vaadin-icons/vaadin-iconset';
+import '@vaadin/vaadin-lumo-styles/icons';
 
 import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-button/vaadin-button';
@@ -40,6 +40,8 @@ export class HomeView extends LitElement {
   @state()
   private dialogOpened = false;
   @state()
+  private editNote = false;
+  @state()
   private newNoteTitle: string = '';
   @state()
   private newNoteCategory: string = '';
@@ -61,19 +63,33 @@ export class HomeView extends LitElement {
   render() {
     if (this.viewingNote)
         return html`
-          <vaadin-button @click="${this.displayAllNotes}">Back to list</vaadin-button>
-          <h1>${this.viewingNote.title}</h1>  
-              <ul>
-                  ${this.viewingNote.todos.map((todo) => html`<li>${todo.task}</li>`)}
-              </ul>
-              <div class="form">
-                  <vaadin-text-field id="add-task" ...="${field(this.taskBinder.model.task)}"></vaadin-text-field>
-                  <vaadin-button
-                    theme="primary"
-                    @click="${this.addTask}"
-                    ?disabled="${this.taskBinder.invalid}"
-                  >Add task</vaadin-button>
-              </div>
+          <vaadin-button @click="${this.displayAllNotes}">
+              <iron-icon class="icon" icon="lumo:arrow-left"></iron-icon>
+              Retour
+          </vaadin-button>
+          <h1>${this.viewingNote.title}</h1>
+          <vaadin-vertical-layout
+            style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
+          >
+            ${this.viewingNote.todos.map((todo) => html`<task-card .task="${todo}" .edit="${this.editNote}"></task-card>`)}
+          
+            ${this.editNote ? html`
+            <vaadin-horizontal-layout style="width: 100%;">
+              <vaadin-text-field
+                id="add-task"
+                style="flex-grow: 1; margin-right: var(${'--lumo-space-s'});"
+                ...="${field(this.taskBinder.model.task)}"
+              ></vaadin-text-field>
+              <vaadin-button
+                theme="primary"
+                @click="${this.addTask}"
+                ?disabled="${this.taskBinder.invalid}"
+              >Add task</vaadin-button>
+            </vaadin-horizontal-layout>`
+            : html``
+            }
+          </vaadin-vertical-layout>
+          <fab-comp .icon="${this.editNote ? 'lumo:checkmark' : 'lumo:edit'}" .onMouseClick="${() => (this.editNote = !this.editNote)}"></fab-comp>
         `;
     else
         return html`
@@ -83,7 +99,7 @@ export class HomeView extends LitElement {
               `)}
             </div>
             <div><a href="/logout" class="ms-auto">Log out</a></div>
-            <fab-comp .onMouseClick="${() => (this.dialogOpened = true)}"></fab-comp>
+            <fab-comp .icon="${'lumo:plus'}" .onMouseClick="${() => (this.dialogOpened = true)}"></fab-comp>
             <vaadin-dialog
               aria-label="Create note"
               .opened="${this.dialogOpened}"
@@ -95,7 +111,7 @@ export class HomeView extends LitElement {
                               theme="spacing"
                               style="width: 300px; max-width: 100%; align-items: stretch;"
                       >
-                          <h2 style="margin: var(--lumo-space-m) 0 0 0; font-size: 1.5em; font-weight: bold;">
+                          <h2 style="margin: var(${'--lumo-space-m'}) 0 0 0; font-size: 1.5em; font-weight: bold;">
                               Créer un note - ${this.newNoteTitle} - ${this.newNoteCategory}
                           </h2>
                           <vaadin-vertical-layout style="align-items: stretch;">
@@ -281,4 +297,61 @@ export class NoteCard extends LitElement {
     else
       return html`<span>NULL</span>`
   }
+}
+
+@customElement('task-card')
+class TaskCard extends LitElement {
+  @property()
+  task: Todo | null = null;
+  @property()
+  edit: boolean = false;
+
+  static styles = css`
+    .task-card {
+      display: flex;
+      margin-bottom: var(--lumo-space-m);
+      padding: var(--lumo-space-m);
+      justify-content: space-between;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border-left: 12px solid;
+      box-shadow: 0 0 20px #ccc;
+    }
+    .task-card .title {
+      font-size: var(--lumo-font-size-l);
+    }
+    .task-card vaadin-text-field {
+      flex-grow: 1;
+      margin-right: var(--lumo-space-s);
+    }
+  `
+
+  protected render() {
+    if (this.task !== null) {
+      if (!this.edit) {
+        let style: string = '';
+        if (this.task.done)
+          style = 'text-decoration: line-through;color: var(--lumo-tertiary-text-color);'
+        return html`
+            <div class="task-card">
+              <div class="title" style="${style}">${this.task.task}</div>
+              <vaadin-checkbox .checked="${this.task.done}"></vaadin-checkbox>
+            </div>
+        `;
+      }
+      else {
+        return html`
+          <div class="task-card">
+            <vaadin-text-field .value="${this.task.task}"></vaadin-text-field>
+            <vaadin-button class="fab" theme="secondary icon error" aria-label="Supprimer tâche">
+              <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
+            </vaadin-button>
+          </div>
+        `
+      }
+    }
+    else
+      return  html`<span>NULL</span>`
+  }
+
 }

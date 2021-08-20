@@ -7,7 +7,7 @@ import '@vaadin/vaadin-lumo-styles/icons';
 @customElement('fab-comp')
 export class FabComp extends LitElement {
   @property()
-  icon: string | null = null;
+  icon: string | null;
   @property()
   onMouseClick: () => void;
 
@@ -27,12 +27,13 @@ export class FabComp extends LitElement {
   constructor() {
     super();
     this.onMouseClick = () => { }
+    this.icon = 'lumo:plus';
   }
 
-  protected render(): unknown {
+  protected render() {
     return html`
       <vaadin-button @click="${this.onMouseClick}" class="fab" theme="primary icon success" aria-label="Créer un note">
-        <iron-icon class="icon" icon="lumo:plus"></iron-icon>
+        <iron-icon class="icon" .icon="${this.icon}"></iron-icon>
       </vaadin-button>
     `;
   }
