@@ -2,13 +2,14 @@ import {
   customElement,
   html,
   css,
-  LitElement, state, query
+  LitElement, state, query, property
 } from 'lit-element';
 
 import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-checkbox';
-// import '@vaadin/vaadin-icon';
+import '@vaadin/vaadin-icons/vaadin-icons';
+// import '@vaadin/vaadin-icons/vaadin-iconset';
 
 import * as TodoEndpoint from 'Frontend/generated/TodoEndpoint';
 import Note from "Frontend/generated/com/example/application/data/entity/Note";
@@ -68,9 +69,10 @@ export class HomeView extends LitElement {
             </div>
             <div>
                 ${this.notes.map(note => html`
-                <p @click="${() => this.displayOneNote(note.id as number)}">${note.title}</p>
+                <note-card .note="${note}" @click="${() => this.displayOneNote(note.id as number)}"></note-card>
               `)}
             </div>
+            <div><a href="/logout" class="ms-auto">Log out</a></div>
         `;
   }
 
@@ -108,5 +110,84 @@ export class HomeView extends LitElement {
         this.requestUpdate()
       }
     }
+  }
+}
+
+@customElement('note-card')
+export class NoteCard extends LitElement {
+  @property()
+  note: Note | null = null;
+
+  static styles = css`
+    .note-card {
+      display: flex;
+      flex-flow: column nowrap;
+      /* height: 150px; */
+      padding: var(--lumo-space-s) var(--lumo-space-l);
+      margin-bottom: var(--lumo-space-l);
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border-left: 12px solid;
+      box-shadow: 0 0 20px #ccc;
+    }
+    .category {
+      font-family: 'Nunito', sans-serif;
+      text-transform: uppercase;
+    }
+    .title {
+      font-size: var(--lumo-font-size-xxl);
+      padding: var(--lumo-space-s) 0;
+    }
+    .details {
+      font-size: var(--lumo-font-size-s);
+      margin: 0 0 var(--lumo-space-s) 0;
+    }
+    .progress-bar {
+      height: 10px;
+      background-color: var(--lumo-tertiary-text-color);
+      border-radius: 10px;
+    }
+    .progress-bar div {
+      height: 100%;
+      border-radius: 20px;
+    }
+    .menu-button {
+      
+    }
+  `
+  protected render() {
+    if (this.note !== null) {
+      const note: Note = this.note as Note;
+      console.log('Note: ', note)
+      // if (!note.todos)
+      //   note.todos = []
+      const nbItems = note.todos.length;
+      const nbItemsDone = note.todos.filter(it => it.done).length;
+      const nbItemsRemaining = nbItems - nbItemsDone;
+      let progressPct: number;
+      if (nbItems != 0)
+        progressPct = nbItemsDone / nbItems * 100;
+      else
+        progressPct = 0;
+      return html`
+          <div class="note-card" style="border-left-color: ${note.color}">
+              <!--        <vaadin-button class="menu-button" theme="icon" aria-label="Close">-->
+              <!--          <vaadin-icon icon="vaadin:chevron-down-small"></vaadin-icon>-->
+              <!--        </vaadin-button>-->
+              <div class="category" style="color: ${note.color};">${note.category}</div>
+              <div class="title">${note.title}</div>
+              <div class="details">
+                  <div>${nbItems} élément${nbItems > 1 ? 's' : ''}</div>
+                  <div>${nbItemsRemaining} restant${nbItemsRemaining > 1 ? 's' : ''}</div>
+              </div>
+              <div class="progress-bar">
+                  <div style="width: ${progressPct}%; background-color: ${note.color};"></div>
+              </div>
+          </div>
+          </div>
+      `;
+    }
+    else
+      return html`<span>NULL</span>`
   }
 }

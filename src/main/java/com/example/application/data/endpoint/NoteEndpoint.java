@@ -1,10 +1,7 @@
 package com.example.application.data.endpoint;
 
 import com.example.application.data.entity.Note;
-import com.example.application.data.entity.Todo;
 import com.example.application.data.service.NoteRepository;
-import com.example.application.data.service.TodoRepository;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.connect.Endpoint;
 
 import javax.annotation.security.PermitAll;
@@ -16,11 +13,9 @@ import java.util.Optional;
 @PermitAll
 public class NoteEndpoint {
     private NoteRepository repository;
-    private TodoRepository todoRepository;
 
-    public NoteEndpoint(NoteRepository repository, TodoRepository todoRepository) {
+    public NoteEndpoint(NoteRepository repository) {
         this.repository = repository;
-        this.todoRepository = todoRepository;
     }
 
     public List<Note> findAll() { return repository.findAll(); }
