@@ -1,6 +1,5 @@
 package com.example.application.data.entity;
 
-import com.example.application.Util;
 import com.example.application.data.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -23,10 +22,7 @@ public class Note extends AbstractEntity {
     @OneToMany(mappedBy = "note")
     private List<Todo> todos;
 
-    public Note() {
-        this.category = Util.getRandomCategory();
-        this.color = Util.getRandomColor();
-    }
+    public Note() { }
 
     public Note(String title) {
         this();
