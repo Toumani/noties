@@ -71,7 +71,13 @@ export class HomeView extends LitElement {
           <vaadin-vertical-layout
             style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
           >
-            ${this.viewingNote.todos.map((todo) => html`<task-card .task="${todo}" .edit="${this.editNote}"></task-card>`)}
+            ${this.viewingNote.todos.map((todo) => html`
+              <task-card
+                .task="${todo}"
+                .edit="${this.editNote}"
+                .viewingNote="${this.viewingNote}"
+                .updateParent="${this.updateTask}"
+              ></task-card>`)}
           
             ${this.editNote ? html`
             <vaadin-horizontal-layout style="width: 100%;">
@@ -161,7 +167,7 @@ export class HomeView extends LitElement {
                 );})}"
             ></vaadin-dialog>
         `;
-  }
+  };
 
   async connectedCallback() {
     super.connectedCallback();
@@ -204,6 +210,17 @@ export class HomeView extends LitElement {
       if (savedTodo) {
         this.viewingNote = (await NoteEndpoint.findById(this.viewingNote.id as number)) as Note
         this.taskBinder.clear()
+        this.requestUpdate()
+      }
+    }
+  }
+
+  updateTask(viewingNote: Note, task: Todo) {
+    if (viewingNote) {
+      const taskToUpdate = viewingNote.todos.find(it => it.id === task.id);
+      if (taskToUpdate) {
+        taskToUpdate.done = task.done;
+        taskToUpdate.task = task.task;
         this.requestUpdate()
       }
     }
@@ -305,6 +322,10 @@ class TaskCard extends LitElement {
   task: Todo | null = null;
   @property()
   edit: boolean = false;
+  @property()
+  viewingNote: Note | null = null;
+  @property()
+  updateParent: (viewingNote: Note, task: Todo) => void = () => {};
 
   static styles = css`
     .task-card {
@@ -329,13 +350,15 @@ class TaskCard extends LitElement {
   protected render() {
     if (this.task !== null) {
       if (!this.edit) {
-        let style: string = '';
-        if (this.task.done)
-          style = 'text-decoration: line-through;color: var(--lumo-tertiary-text-color);'
+        let cardStyle: string = '', titleStyle: string = '';
+        if (this.task.done) {
+          cardStyle = 'border-color: var(--lumo-tertiary-text-color);'
+          titleStyle = 'text-decoration: line-through;color: var(--lumo-tertiary-text-color);'
+        }
         return html`
-            <div class="task-card">
-              <div class="title" style="${style}">${this.task.task}</div>
-              <vaadin-checkbox .checked="${this.task.done}"></vaadin-checkbox>
+            <div class="task-card" style="${cardStyle}">
+              <div class="title" style="${titleStyle}">${this.task.task}</div>
+              <vaadin-checkbox .checked="${this.task.done}" @change="${this.toggleTaskDone}"></vaadin-checkbox>
             </div>
         `;
       }
@@ -352,6 +375,20 @@ class TaskCard extends LitElement {
     }
     else
       return  html`<span>NULL</span>`
+  }
+
+  private async toggleTaskDone() {
+    if (this.task && this.viewingNote) {
+      const task = {
+        id: this.task.id,
+        task: this.task.task,
+        done: !this.task.done,
+      } as Todo
+      const updatedTask = await TodoEndpoint.save(task)
+      if (updatedTask) {
+        this.updateParent(this.viewingNote, updatedTask);
+      }
+    }
   }
 
 }
