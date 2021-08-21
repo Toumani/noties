@@ -17,4 +17,6 @@ public class TodoEndpoint {
     public List<Todo> findAll() { return repository.findAll(); }
 
     public Todo save(Todo todo) { return repository.save(todo); }
+
+    public void delete(Todo todo) { repository.delete(todo); }
 }

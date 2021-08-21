@@ -71,12 +71,14 @@ export class HomeView extends LitElement {
           <vaadin-vertical-layout
             style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
           >
-            ${this.viewingNote.todos.map((todo) => html`
+            ${this.viewingNote.todos.map((todo, index) => html`
               <task-card
                 .task="${todo}"
                 .edit="${this.editNote}"
+                .index="${index}"
                 .viewingNote="${this.viewingNote}"
-                .updateParent="${this.updateTask}"
+                .onTaskUpdate="${this.updateTask}"
+                .onTaskDelete="${(note: Note, index: number) => { this.deleteTask(note, index); this.requestUpdate(); }}"
               ></task-card>`)}
           
             ${this.editNote ? html`
@@ -118,7 +120,7 @@ export class HomeView extends LitElement {
                               style="width: 300px; max-width: 100%; align-items: stretch;"
                       >
                           <h2 style="margin: var(${'--lumo-space-m'}) 0 0 0; font-size: 1.5em; font-weight: bold;">
-                              Créer un note - ${this.newNoteTitle} - ${this.newNoteCategory}
+                              Créer un note
                           </h2>
                           <vaadin-vertical-layout style="align-items: stretch;">
                             <vaadin-text-field
@@ -167,7 +169,7 @@ export class HomeView extends LitElement {
                 );})}"
             ></vaadin-dialog>
         `;
-  };
+  }
 
   async connectedCallback() {
     super.connectedCallback();
@@ -223,6 +225,12 @@ export class HomeView extends LitElement {
         taskToUpdate.task = task.task;
         this.requestUpdate()
       }
+    }
+  }
+
+  deleteTask(viewingNote: Note, index: number) {
+    if (viewingNote) {
+      viewingNote.todos.splice(index, 1);
     }
   }
 
@@ -323,9 +331,13 @@ class TaskCard extends LitElement {
   @property()
   edit: boolean = false;
   @property()
+  index: number = -1;
+  @property()
   viewingNote: Note | null = null;
   @property()
-  updateParent: (viewingNote: Note, task: Todo) => void = () => {};
+  onTaskUpdate: (viewingNote: Note, task: Todo) => void = () => {};
+  @property()
+  onTaskDelete: (viewingNote: Note, index: number) => void = () => {};
 
   static styles = css`
     .task-card {
@@ -366,7 +378,7 @@ class TaskCard extends LitElement {
         return html`
           <div class="task-card">
             <vaadin-text-field .value="${this.task.task}"></vaadin-text-field>
-            <vaadin-button class="fab" theme="secondary icon error" aria-label="Supprimer tâche">
+            <vaadin-button class="fab" theme="secondary icon error" @click="${this.deleteTask}" aria-label="Supprimer tâche">
               <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
             </vaadin-button>
           </div>
@@ -386,7 +398,18 @@ class TaskCard extends LitElement {
       } as Todo
       const updatedTask = await TodoEndpoint.save(task)
       if (updatedTask) {
-        this.updateParent(this.viewingNote, updatedTask);
+        this.onTaskUpdate(this.viewingNote, updatedTask);
+      }
+    }
+  }
+
+  private async deleteTask() {
+    if (this.index > -1 && this.task && this.viewingNote) {
+      try {
+        await TodoEndpoint.delete(this.task);
+        this.onTaskDelete(this.viewingNote, this.index);
+      } catch (e) {
+        console.log(e);
       }
     }
   }
