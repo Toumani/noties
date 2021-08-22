@@ -1,12 +1,7 @@
 import {css, customElement, html, LitElement, property, query, state} from "lit-element";
+
 import { Binder, field } from '@vaadin/form';
 import { Router } from '@vaadin/router';
-import Note from "Frontend/generated/com/example/application/data/entity/Note";
-import {NoteEndpoint} from "Frontend/generated/NoteEndpoint";
-import TodoModel from "Frontend/generated/com/example/application/data/entity/TodoModel";
-import Todo from "Frontend/generated/com/example/application/data/entity/Todo";
-import * as TodoEndpoint from "Frontend/generated/TodoEndpoint";
-
 import '@vaadin/vaadin-dialog/vaadin-dialog';
 import '@vaadin/vaadin-button/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
@@ -16,8 +11,14 @@ import '@vaadin/vaadin-select/vaadin-select';
 import '@vaadin/vaadin-list-box/vaadin-list-box';
 import '@vaadin/vaadin-item/vaadin-item';
 
+import { router } from "Frontend/index";
 import '../../components/Fab';
-import {router} from "Frontend/index";
+
+import Note from "Frontend/generated/com/example/application/data/entity/Note";
+import {NoteEndpoint} from "Frontend/generated/NoteEndpoint";
+import TodoModel from "Frontend/generated/com/example/application/data/entity/TodoModel";
+import Todo from "Frontend/generated/com/example/application/data/entity/Todo";
+import * as TodoEndpoint from "Frontend/generated/TodoEndpoint";
 
 @customElement('note-view')
 export class NoteView extends LitElement {
@@ -146,6 +147,8 @@ class TaskCard extends LitElement {
   onTaskUpdate: (viewingNote: Note, task: Todo) => void = () => {};
   @property()
   onTaskDelete: (viewingNote: Note, index: number) => void = () => {};
+  @state()
+  updatedTask: string = '';
 
   static styles = css`
     .task-card {
@@ -185,7 +188,11 @@ class TaskCard extends LitElement {
       else {
         return html`
           <div class="task-card" style="${cardStyle}">
-            <vaadin-text-field .value="${this.task.task}"></vaadin-text-field>
+            <vaadin-text-field
+              .value="${this.task.task}"
+              @input="${this.updateTaskLocal}"
+              @focusout="${this.updateTask}"
+            ></vaadin-text-field>
             <vaadin-button class="fab" theme="secondary icon error" @click="${this.deleteTask}" aria-label="Supprimer tâche">
               <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
             </vaadin-button>
@@ -195,6 +202,30 @@ class TaskCard extends LitElement {
     }
     else
       return  html`<span>NULL</span>`
+  }
+
+  private updateTaskLocal(e: CustomEvent) {
+    // @ts-ignore
+    this.updatedTask = e.target.value;
+  }
+
+  private async updateTask() {
+    if (
+      this.task &&
+      this.viewingNote &&
+      this.updatedTask !== '' &&
+      this.updatedTask !== this.task.task
+    ) {
+      const task = {
+        id: this.task.id,
+        task: this.updatedTask,
+        done: this.task.done
+      } as Todo;
+      const  updatedTask = await TodoEndpoint.save(task)
+      if (updatedTask) {
+        this.onTaskUpdate(this.viewingNote, updatedTask);
+      }
+    }
   }
 
   private async toggleTaskDone() {
