@@ -54,7 +54,6 @@ export class HomeView extends LitElement {
           <note-card .note="${note}" @click="${() => Router.go('/note/' + note.id)}"></note-card>
         `)}
       </div>
-      <div><a href="/logout" class="ms-auto">Log out</a></div>
       <fab-comp .icon="${'lumo:plus'}" .onMouseClick="${() => (this.dialogOpened = true)}"></fab-comp>
       <vaadin-dialog
         aria-label="Create note"
@@ -68,7 +67,7 @@ export class HomeView extends LitElement {
                       style="width: 300px; max-width: 100%; align-items: stretch;"
               >
                 <h2 style="margin: var(${'--lumo-space-m'}) 0 0 0; font-size: 1.5em; font-weight: bold;">
-                    Créer un note
+                    Créer une note
                 </h2>
                 <vaadin-vertical-layout style="align-items: stretch;">
                   <vaadin-text-field

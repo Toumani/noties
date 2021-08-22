@@ -3,6 +3,7 @@ import { uiStore } from './stores/ui-store';
 import './views/main-layout';
 import './views/home/home-view';
 import './views/note/note-view';
+import './views/profile/profile-view';
 import './views/login/login-view';
 import { autorun } from "mobx";
 
@@ -41,10 +42,16 @@ export const views: ViewRoute[] = [
   {
     path: 'notes',
     component: 'home-view',
-    icon: 'la la-list-alt',
+    icon: 'lumo:unordered-list',
     title: 'Notes',
   },
   { path: 'note/:id', component: 'note-view' },
+  {
+    path: 'profile',
+    component: 'profile-view',
+    icon: 'lumo:user',
+    title: 'Profil',
+  },
 ];
 export const routes: ViewRoute[] = [
   { path: 'login', component: 'login-view' },

@@ -5,6 +5,8 @@ import '@vaadin/vaadin-avatar/vaadin-avatar';
 import '@vaadin/vaadin-context-menu';
 import '@vaadin/vaadin-tabs';
 import '@vaadin/vaadin-tabs/vaadin-tab';
+import '@vaadin/vaadin-icons/vaadin-icons';
+import '@vaadin/vaadin-lumo-styles/icons';
 import { customElement, html } from 'lit-element';
 import { router } from '../index';
 import { views } from '../routes';
@@ -37,7 +39,8 @@ export class MainLayout extends Layout {
             ${this.getMenuRoutes().map(
               (viewRoute) => html`
                 <vaadin-tab>
-                  <span class="${viewRoute.icon} pr-s"></span>
+<!--                  <span class="${viewRoute.icon} pr-s"></span>-->
+                  <iron-icon icon="${viewRoute.icon}"></iron-icon>
                   <a href=${router.urlForPath(viewRoute.path)} tabindex="-1">${viewRoute.title}</a>
                 </vaadin-tab>
               `
