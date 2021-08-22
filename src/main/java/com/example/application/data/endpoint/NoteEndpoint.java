@@ -3,9 +3,11 @@ package com.example.application.data.endpoint;
 import com.example.application.data.entity.Note;
 import com.example.application.data.service.NoteRepository;
 import com.vaadin.flow.server.connect.Endpoint;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 
 import javax.annotation.security.PermitAll;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,14 +20,14 @@ public class NoteEndpoint {
         this.repository = repository;
     }
 
-    public List<Note> findAll() { return repository.findAll(); }
+    public List<Note> findAll() { return repository.findAll(Sort.by(Order.desc("create"))); }
 
     public Optional<Note> findById(int id) {
         return repository.findById(id);
     }
 
     public Note save(Note note) {
-        note.setCreate(LocalDate.now());
+        note.setCreate(LocalDateTime.now());
         return repository.save(note);
     }
 }

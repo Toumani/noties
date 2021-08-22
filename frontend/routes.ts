@@ -2,6 +2,7 @@ import { Route, Router, Commands, Context } from '@vaadin/router';
 import { uiStore } from './stores/ui-store';
 import './views/main-layout';
 import './views/home/home-view';
+import './views/note/note-view';
 import './views/login/login-view';
 import { autorun } from "mobx";
 
@@ -12,7 +13,7 @@ export type ViewRoute = Route & {
 };
 
 const authGuard = async (context: Context, commands: Commands) => {
-  if (!uiStore.loggedIn) {
+  if (!uiStore.loggedIn && sessionStorage.getItem('logged-in') === 'false') {
     // Save requested path
     sessionStorage.setItem('login-redirect-path', context.pathname);
     return commands.redirect('/login');
@@ -20,8 +21,8 @@ const authGuard = async (context: Context, commands: Commands) => {
   return undefined;
 }
 autorun(() => {
-  if (uiStore.loggedIn) {
-    Router.go(sessionStorage.getItem('login-redirect-path') || '/home');
+  if (uiStore.loggedIn || sessionStorage.getItem('logged-in') === 'true') {
+    Router.go(sessionStorage.getItem('login-redirect-path') || '/notes');
   } else {
     if (location.pathname !== '/login') {
       sessionStorage.setItem('login-redirect-path', location.pathname);
@@ -38,11 +39,12 @@ export const views: ViewRoute[] = [
     title: '',
   },
   {
-    path: 'home',
+    path: 'notes',
     component: 'home-view',
     icon: 'la la-list-alt',
-    title: 'Todo',
+    title: 'Notes',
   },
+  { path: 'note/:id', component: 'note-view' },
 ];
 export const routes: ViewRoute[] = [
   { path: 'login', component: 'login-view' },

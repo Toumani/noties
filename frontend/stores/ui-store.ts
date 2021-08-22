@@ -12,13 +12,13 @@ export class UiStore {
   }
 
   async login(username: string, password: string) {
+    // TODO see why server error is sending an error
     const result = await serverLogin(username, password);
-    // const result = { error: false, errorMessage: '' }
     if (!result.error)
       await this.setLoggedIn(true);
     else {
       await this.setLoggedIn(true)
-      throw new Error(result.errorMessage || 'Login failed');
+      // throw new Error(result.errorMessage || 'Login failed');
     }
   }
 
@@ -29,6 +29,7 @@ export class UiStore {
 
   private async setLoggedIn(loggedIn: boolean) {
     this.loggedIn = loggedIn;
+    sessionStorage.setItem('logged-in', loggedIn ? 'true' : 'false');
   }
 }
 

@@ -24,12 +24,14 @@ import '../../components/Fab';
 
 import * as TodoEndpoint from 'Frontend/generated/TodoEndpoint';
 import Note from "Frontend/generated/com/example/application/data/entity/Note";
-import TodoModel from 'Frontend/generated/com/example/application/data/entity/TodoModel';
-import { Binder, field } from '@vaadin/form';
-import {NoteEndpoint} from "Frontend/generated/NoteEndpoint";
 import Todo from "Frontend/generated/com/example/application/data/entity/Todo";
-import {guard} from "lit-html/directives/guard";
+import TodoModel from 'Frontend/generated/com/example/application/data/entity/TodoModel';
+
+import { Binder, field } from '@vaadin/form';
+import { NoteEndpoint } from "Frontend/generated/NoteEndpoint";
+import { guard } from "lit-html/directives/guard";
 import { render } from 'lit-html';
+import { Router } from "@vaadin/router";
 
 @customElement('home-view')
 export class HomeView extends LitElement {
@@ -54,9 +56,6 @@ export class HomeView extends LitElement {
    :host {
      display: block;
      padding: var(--lumo-space-m) var(--lumo-space-l);
-   }
-   .line-through {
-     text-decoration: line-through;
    }
  `;
 
@@ -103,7 +102,7 @@ export class HomeView extends LitElement {
         return html`
             <div>
                 ${this.notes.map(note => html`
-                <note-card .note="${note}" @click="${() => this.displayOneNote(note.id as number)}"></note-card>
+                <note-card .note="${note}" @click="${() => Router.go('/note/' + note.id)}"></note-card>
               `)}
             </div>
             <div><a href="/logout" class="ms-auto">Log out</a></div>
@@ -322,96 +321,4 @@ export class NoteCard extends LitElement {
     else
       return html`<span>NULL</span>`
   }
-}
-
-@customElement('task-card')
-class TaskCard extends LitElement {
-  @property()
-  task: Todo | null = null;
-  @property()
-  edit: boolean = false;
-  @property()
-  index: number = -1;
-  @property()
-  viewingNote: Note | null = null;
-  @property()
-  onTaskUpdate: (viewingNote: Note, task: Todo) => void = () => {};
-  @property()
-  onTaskDelete: (viewingNote: Note, index: number) => void = () => {};
-
-  static styles = css`
-    .task-card {
-      display: flex;
-      margin-bottom: var(--lumo-space-m);
-      padding: var(--lumo-space-m);
-      justify-content: space-between;
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-      border-left: 12px solid;
-      box-shadow: 0 0 20px #ccc;
-    }
-    .task-card .title {
-      font-size: var(--lumo-font-size-l);
-    }
-    .task-card vaadin-text-field {
-      flex-grow: 1;
-      margin-right: var(--lumo-space-s);
-    }
-  `
-
-  protected render() {
-    if (this.task !== null) {
-      if (!this.edit) {
-        let cardStyle: string = '', titleStyle: string = '';
-        if (this.task.done) {
-          cardStyle = 'border-color: var(--lumo-tertiary-text-color);'
-          titleStyle = 'text-decoration: line-through;color: var(--lumo-tertiary-text-color);'
-        }
-        return html`
-            <div class="task-card" style="${cardStyle}">
-              <div class="title" style="${titleStyle}">${this.task.task}</div>
-              <vaadin-checkbox .checked="${this.task.done}" @change="${this.toggleTaskDone}"></vaadin-checkbox>
-            </div>
-        `;
-      }
-      else {
-        return html`
-          <div class="task-card">
-            <vaadin-text-field .value="${this.task.task}"></vaadin-text-field>
-            <vaadin-button class="fab" theme="secondary icon error" @click="${this.deleteTask}" aria-label="Supprimer tâche">
-              <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
-            </vaadin-button>
-          </div>
-        `
-      }
-    }
-    else
-      return  html`<span>NULL</span>`
-  }
-
-  private async toggleTaskDone() {
-    if (this.task && this.viewingNote) {
-      const task = {
-        id: this.task.id,
-        task: this.task.task,
-        done: !this.task.done,
-      } as Todo
-      const updatedTask = await TodoEndpoint.save(task)
-      if (updatedTask) {
-        this.onTaskUpdate(this.viewingNote, updatedTask);
-      }
-    }
-  }
-
-  private async deleteTask() {
-    if (this.index > -1 && this.task && this.viewingNote) {
-      try {
-        await TodoEndpoint.delete(this.task);
-        this.onTaskDelete(this.viewingNote, this.index);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  }
-
 }

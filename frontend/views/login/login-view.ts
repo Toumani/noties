@@ -27,7 +27,7 @@ export class LoginView extends LitElement {
   async login(e: CustomEvent) {
     try {
       await uiStore.login(e.detail.username, e.detail.password);
-      Router.go('/home');
+      Router.go('/notes');
     } catch (e) {
       this.error = true;
     }

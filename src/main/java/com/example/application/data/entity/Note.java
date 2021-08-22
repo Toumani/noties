@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -14,7 +14,7 @@ public class Note extends AbstractEntity {
 
     @NotBlank
     private String title;
-    private LocalDate create;
+    private LocalDateTime create;
     private String category;
     private String color;
 
@@ -32,8 +32,8 @@ public class Note extends AbstractEntity {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public LocalDate getCreate() { return create; }
-    public void setCreate(LocalDate create) { this.create = create; }
+    public LocalDateTime getCreate() { return create; }
+    public void setCreate(LocalDateTime create) { this.create = create; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
