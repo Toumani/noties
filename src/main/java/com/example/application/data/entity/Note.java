@@ -14,7 +14,7 @@ public class Note extends AbstractEntity {
 
     @NotBlank
     private String title;
-    private LocalDateTime create;
+    private LocalDateTime created;
     private String category;
     private String color;
 
@@ -32,8 +32,8 @@ public class Note extends AbstractEntity {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public LocalDateTime getCreate() { return create; }
-    public void setCreate(LocalDateTime create) { this.create = create; }
+    public LocalDateTime getCreated() { return created; }
+    public void setCreated(LocalDateTime created) { this.created = created; }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

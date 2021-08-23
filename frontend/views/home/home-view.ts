@@ -129,7 +129,7 @@ export class HomeView extends LitElement {
       category: this.newNoteCategory,
       color: this.getRandomColor(),
       todos: [],
-      create: '', // date of creation is handle by server
+      created: '', // date of creation is handle by server
     } as Note;
     // const createNote = await this.binder.submitTo(NoteEndpoint.save);
     const createdNote = await NoteEndpoint.save(note);

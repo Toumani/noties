@@ -20,14 +20,14 @@ public class NoteEndpoint {
         this.repository = repository;
     }
 
-    public List<Note> findAll() { return repository.findAll(Sort.by(Order.desc("create"))); }
+    public List<Note> findAll() { return repository.findAll(Sort.by(Order.desc("created"))); }
 
     public Optional<Note> findById(int id) {
         return repository.findById(id);
     }
 
     public Note save(Note note) {
-        note.setCreate(LocalDateTime.now());
+        note.setCreated(LocalDateTime.now());
         return repository.save(note);
     }
 }
