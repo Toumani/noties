@@ -12,6 +12,7 @@ import { router } from '../index';
 import { views } from '../routes';
 import { appStore } from '../stores/app-store';
 import { Layout } from './view';
+import { Router } from "@vaadin/router";
 
 interface RouteInfo {
   path: string;
@@ -54,6 +55,8 @@ export class MainLayout extends Layout {
 
   connectedCallback() {
     super.connectedCallback();
+    if (appStore.location === '')
+      Router.go('notes');
     this.classList.add('block', 'h-full');
     this.reaction(
       () => appStore.location,
