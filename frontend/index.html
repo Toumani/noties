@@ -17,6 +17,60 @@
       #outlet {
         height: 100%;
       }
+
+      .leaving {
+          animation: 0.1s fadeOut ease-in-out;
+      }
+
+      .entering {
+          animation: 5ms fadeIn linear;
+      }
+
+      .notes-leaving {
+          animation: 0.2s fadeOut ease-out;
+      }
+
+      .notes-entering {
+          animation: 0.2s fadeIn linear;
+      }
+
+      .note-leaving {
+          animation: 0.2s fadeOut linear;
+      }
+
+      .note-entering {
+          animation: 0.2s fadeIn ease-out;
+      }
+
+      @keyframes slideOut {
+          from { transform: translateX(0); width: 100%; }
+          to { transform: translateX(100vw); width: 100%; }
+      }
+
+      @keyframes slideIn {
+          from { transform: translateX(100vw); width: 100%; }
+          to { transform: translateX(0); width: 100%; }
+      }
+
+      @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+      }
+
+      @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+      }
+
+      @keyframes disappear {
+          from { visibility: visible; }
+          to { visibility: hidden; }
+      }
+
+      @keyframes appear {
+          from { visibility: hidden; }
+          to { visibility: visible; }
+      }
     </style>
     <!-- index.ts is included here automatically (either by the dev server or during the build) -->
   </head>

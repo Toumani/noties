@@ -45,7 +45,10 @@ export const views: ViewRoute[] = [
     icon: 'lumo:unordered-list',
     title: 'Notes',
   },
-  { path: 'note/:id', component: 'note-view' },
+  {
+    path: 'note/:id',
+    component: 'note-view',
+  },
   {
     path: 'profile',
     component: 'profile-view',
@@ -63,7 +66,7 @@ export const routes: ViewRoute[] = [
     }
   },
   {
-    path: '',
+    path: '/',
     component: 'main-layout',
     children: [...views],
     action: authGuard,

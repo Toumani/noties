@@ -30,7 +30,7 @@ import { Router } from "@vaadin/router";
 @customElement('home-view')
 export class HomeView extends LitElement {
   @state()
-  private notes: Note[] = [];
+  private notes: Note[] | null = null;
   @state()
   private dialogOpened = false;
   @state()
@@ -50,9 +50,21 @@ export class HomeView extends LitElement {
   render() {
     return html`
       <div>
-          ${this.notes.map(note => html`
-          <note-card .note="${note}" @click="${() => Router.go('/note/' + note.id)}"></note-card>
-        `)}
+        ${ this.notes === null
+          ? html`
+<!--            <link rel="stylesheet" href="https://unpkg.com/css-skeletons@1.0.3/css/css-skeletons.min.css" />-->
+            <div
+              class="skeleton skeleton-line"
+              style="
+                --l-h: 140px;
+                --lines: 6;
+                --c-w: 100%;
+              "
+            ></div>`
+          : this.notes.map(note => html`
+              <note-card .note="${note}" @click="${() => Router.go('/note/' + note.id)}"></note-card>
+            `)
+        }
       </div>
       <fab-comp .icon="${'lumo:plus'}" .onMouseClick="${() => (this.dialogOpened = true)}"></fab-comp>
       <vaadin-dialog
@@ -136,7 +148,10 @@ export class HomeView extends LitElement {
     if (createdNote) {
       this.newNoteTitle = '';
       this.newNoteCategory = '';
-      this.notes = [createdNote, ...this.notes,];
+      if (this.notes !== null)
+        this.notes = [createdNote, ...this.notes,];
+      else
+        this.notes = [createdNote];
       // this.binder.clear();
     }
   }
