@@ -189,7 +189,13 @@ export class NoteCard extends LitElement {
   @property()
   note: Note | null = null;
   @state()
-  private dialogOpened = false;
+  private newNoteTitle: string = '';
+  @state()
+  private newNoteCategory: string = '';
+  @state()
+  private editDialogOpened = false;
+  @state()
+  private deleteDialogOpened = false;
   @state()
   private notificationOpened = false;
   @property()
@@ -197,8 +203,20 @@ export class NoteCard extends LitElement {
 
   @internalProperty()
   private items?: ContextMenuItem[] = [
-    { component: this.createItem('Modifier', 'vaadin:edit', 'var(--lumo-primary-text-color)', () => console.log('Open edit dialog')) },
-    { component: this.createItem('Supprimer', 'vaadin:trash', 'var(--lumo-error-text-color)', () => { this.dialogOpened = true; }) },
+    {
+      component: this.createItem(
+      'Modifier',
+        'vaadin:edit',
+        'var(--lumo-primary-text-color)',
+        () => {
+          this.editDialogOpened = true;
+          if (this.note) {
+            this.newNoteTitle = this.note.title;
+            this.newNoteCategory = this.note.category;
+          }
+      })
+    },
+    { component: this.createItem('Supprimer', 'vaadin:trash', 'var(--lumo-error-text-color)', () => { this.deleteDialogOpened = true; }) },
   ]; //  = [{ text: 'View' }, { text: 'Edit' }, { text: 'Delete' }];
 
   private contextMenuOpened?: boolean;
@@ -284,8 +302,8 @@ export class NoteCard extends LitElement {
           </div>
           <vaadin-dialog
             aria-lable="Supprimer une note"
-            .opened="${this.dialogOpened}"
-            @opened-changed="${(e: CustomEvent) => (this.dialogOpened = e.detail.value)}"
+            .opened="${this.deleteDialogOpened}"
+            @opened-changed="${(e: CustomEvent) => (this.deleteDialogOpened = e.detail.value)}"
             .renderer="${guard([], () => (root: HTMLElement) => {
             render(
               html`
@@ -295,13 +313,13 @@ export class NoteCard extends LitElement {
                   <vaadin-horizontal-layout
                     style="justify-content: flex-end; width: 100%;"
                   >
-                    <vaadin-button theme="tertiary" @click="${() => (this.dialogOpened = false)}">Annuler</vaadin-button>
+                    <vaadin-button theme="tertiary" @click="${() => (this.deleteDialogOpened = false)}">Annuler</vaadin-button>
                     <vaadin-button
                       theme="primary error"
                       style="margin-left: var(--lumo-space-m);"
                       @click="${() => {
                         this.deleteNote();
-                        this.dialogOpened = false;
+                        this.deleteDialogOpened = false;
                       }}"
                     >Supprimer</vaadin-button>
                   </vaadin-horizontal-layout>
@@ -309,6 +327,67 @@ export class NoteCard extends LitElement {
               `, root
             );
           })}"
+          ></vaadin-dialog>
+          <vaadin-dialog
+            aria-label="Modifier une note"
+            .opened="${this.editDialogOpened}"
+            @opened-changed="${(e: CustomEvent) => (this.editDialogOpened = e.detail.value)}"
+            .renderer="${guard([], () => (root: HTMLElement) => {
+              // @ts-ignore
+              render(
+                html`
+                  <vaadin-vertical-layout
+                    theme="spacing"
+                    style="width: 300px; max-width: 100%; align-items: stretch;"
+                  >
+                    <h2 style="margin: var(${'--lumo-space-m'}) 0 0 0; font-size: 1.5em; font-weight: bold;">
+                      Modifier une note
+                    </h2>
+                    <vaadin-vertical-layout style="align-items: stretch;">
+                      <vaadin-text-field
+                        label="Titre"
+                        .value="${this.newNoteTitle}"
+                        @change="${(e: Event) => this.newNoteTitle = (e.target as HTMLInputElement).value}"
+                      ></vaadin-text-field>
+                      <vaadin-select
+                        placeholder="Catégorie de la note"
+                        label="Catégorie"
+                        .value="${this.newNoteCategory}"
+                        @change="${(e: Event) => this.newNoteCategory = (e.target as HTMLSelectElement).value}"
+                        .renderer="${guard(
+                          [],
+                          () => (root: HTMLElement) =>
+                            render(html`
+                                <vaadin-list-box>
+                                  <vaadin-item value="Épicerie">Épicerie</vaadin-item>
+                                  <vaadin-item value="Work">Work</vaadin-item>
+                                  <vaadin-item value="Personnel">Personnel</vaadin-item>
+                                  <vaadin-item value="Épicerie">Épicerie</vaadin-item>
+                                  <vaadin-item value="Santé">Santé</vaadin-item>
+                                  <vaadin-item value="Sorties">Sorties</vaadin-item>
+                                  <vaadin-item value="Autres">Autres</vaadin-item>
+                                  </vaddin-list-box>
+                              `, root
+                            )
+                        )}"
+                      ></vaddin-select>
+                    </vaadin-vertical-layout>
+                    <vaadin-horizontal-layout theme="spacing" style="justify-content: flex-end">
+                      <vaadin-button @click="${() => (this.editDialogOpened = false)}">Annuler</vaadin-button>
+                      <vaadin-button
+                        theme="primary"
+                        @click="${() => {
+                          this.updateNote();
+                          this.editDialogOpened = false
+                        }}"
+                      >
+                        Enregistrer
+                      </vaadin-button>
+                    </vaadin-horizontal-layout>
+                  </vaadin-vertical-layout>
+                `, root
+              ); 
+            })}"
           ></vaadin-dialog>
           <vaadin-notification
             theme="success"
@@ -335,6 +414,18 @@ export class NoteCard extends LitElement {
     }
     else
       return html`<span>NULL</span>`
+  }
+
+  private async updateNote() {
+    const note = {
+      ...this.note,
+      title: this.newNoteTitle,
+      category: this.newNoteCategory,
+    } as Note;
+    const updatedNote = await NoteEndpoint.save(note);
+    if (updatedNote) {
+      this.note = {...updatedNote};
+    }
   }
 
   private async deleteNote() {

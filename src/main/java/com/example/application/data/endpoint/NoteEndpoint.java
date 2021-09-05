@@ -1,7 +1,6 @@
 package com.example.application.data.endpoint;
 
 import com.example.application.data.entity.Note;
-import com.example.application.data.entity.Todo;
 import com.example.application.data.service.NoteRepository;
 import com.vaadin.flow.server.connect.Endpoint;
 import org.springframework.data.domain.Sort;

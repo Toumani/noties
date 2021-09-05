@@ -3,6 +3,7 @@ package com.example.application.data.entity;
 import com.example.application.data.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
@@ -19,7 +20,7 @@ public class Note extends AbstractEntity {
     private String color;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "note")
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
     private List<Todo> todos;
 
     public Note() { }
