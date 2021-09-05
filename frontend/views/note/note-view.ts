@@ -47,7 +47,14 @@ export class NoteView extends LitElement {
       </vaadin-button>
       ${ this.viewingNote ?
       html`
-      <h1>${this.viewingNote.title}</h1>
+        <vaadin-horizontal-layout
+          style="justify-content: space-between; align-items: center;"
+        >
+          <h1>${this.viewingNote.title}</h1>
+          <vaadin-button theme="icon${this.editNote ? " success" : ""}" @click="${() => this.editNote = !this.editNote}">
+            <iron-icon class="icon" icon="lumo:${this.editNote ? "checkmark" : "edit"}"></iron-icon>
+          </vaadin-button>
+        </vaadin-horizontal-layout>
       <vaadin-vertical-layout
         style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
       >
@@ -201,9 +208,6 @@ class TaskCard extends LitElement {
               @input="${this.updateTaskLocal}"
               @focusout="${this.updateTask}"
             ></vaadin-text-field>
-            <vaadin-button class="fab" theme="secondary icon error" @click="${this.deleteTask}" aria-label="Supprimer tâche">
-              <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
-            </vaadin-button>
           </div>
         `
       }
