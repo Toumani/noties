@@ -208,6 +208,9 @@ class TaskCard extends LitElement {
               @input="${this.updateTaskLocal}"
               @focusout="${this.updateTask}"
             ></vaadin-text-field>
+            <vaadin-button class="fab" theme="secondary icon error" @click="${this.deleteTask}" aria-label="Supprimer tâche">
+              <iron-icon class="icon" .icon="${'lumo:cross'}"></iron-icon>
+            </vaadin-button>
           </div>
         `
       }

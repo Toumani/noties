@@ -23,6 +23,7 @@ import '@vaadin/vaadin-notification/vaadin-notification';
 import { ContextMenuItem } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
 
 import '../../components/Fab';
+import '../../components/Chips';
 
 import Note from "Frontend/generated/com/example/application/data/entity/Note";
 import { NoteEndpoint } from "Frontend/generated/NoteEndpoint";
@@ -49,11 +50,22 @@ export class HomeView extends LitElement {
      display: block;
      padding: var(--lumo-space-m) var(--lumo-space-l);
    }
+   #categories-area {
+     margin-bottom: var(--lumo-space-m);
+   }
+   #categories-area > chips-comp {
+     margin-right: var(--lumo-space-m);
+   }
  `;
 
   render() {
     return html`
       <div>
+        <vaadin-horizontal-layout id="categories-area">
+          <chips-comp .label="${"Personnel"}"></chips-comp>
+          <chips-comp .label="${"Santé"}"></chips-comp>
+          <chips-comp .label="${"Amour"}"></chips-comp>
+        </vaadin-horizontal-layout>
         ${ this.notes === null
           ? html`
 <!--            <link rel="stylesheet" href="https://unpkg.com/css-skeletons@1.0.3/css/css-skeletons.min.css" />-->
@@ -260,6 +272,10 @@ export class NoteCard extends LitElement {
     .menu-button {
       
     }
+    .link:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
   `
   protected render() {
     if (this.note !== null) {
@@ -277,7 +293,7 @@ export class NoteCard extends LitElement {
           <vaadin-horizontal-layout
             style="justify-content: space-between; align-items: center"
           >
-            <div class="category" style="color: ${note.color};">${note.category}</div>
+            <div class="category" style="color: ${note.color};"><a class="link">${note.category}</a></div>
             <vaadin-context-menu
               open-on="click"
               .items=${this.items}
