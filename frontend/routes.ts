@@ -46,6 +46,10 @@ export const views: ViewRoute[] = [
     title: 'Notes',
   },
   {
+    path: 'notes/categories=:categories',
+    component: 'home-view',
+  },
+  {
     path: 'note/:id',
     component: 'note-view',
   },

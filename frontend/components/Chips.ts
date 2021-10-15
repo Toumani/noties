@@ -8,6 +8,8 @@ import '@vaadin/vaadin-lumo-styles/icons';
 export class Chips extends LitElement {
   @property()
   label: string = '';
+  @property()
+  onDelete: (label: string) => void = () => {};
 
   static styles = css`
     :host {
@@ -19,14 +21,13 @@ export class Chips extends LitElement {
     .button {
       height: 26px;
     }
-   
   `;
 
   protected render() {
     return html`
       <div>
         <span class="label">${this.label}</span>
-        <vaadin-button class="button" theme="tertiary error icon" aria-label="Supprimer">
+        <vaadin-button @click="${() => this.onDelete(this.label)}" class="button" theme="tertiary error icon" aria-label="Supprimer">
           <iron-icon class="icon" icon="lumo:cross"></iron-icon>
         </vaadin-button>
       </div>

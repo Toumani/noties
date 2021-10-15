@@ -30,6 +30,7 @@ import { NoteEndpoint } from "Frontend/generated/NoteEndpoint";
 import { guard } from "lit-html/directives/guard";
 import { render } from 'lit-html';
 import { Router } from "@vaadin/router";
+import { router } from "Frontend/index";
 import { ContextMenuOpenedChanged } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
 
 @customElement('home-view')
@@ -59,13 +60,28 @@ export class HomeView extends LitElement {
  `;
 
   render() {
+    let categories: string[] | null = null;
+    let displayedNotes: Note[] = [];
+
+    if (router.location.params.categories as string) {
+      categories = (router.location.params.categories as string).split(',');
+      if (this.notes !== null)
+          displayedNotes = this.notes.filter(it => (categories as string[]).includes(it.category));
+      else
+        displayedNotes = [];
+    }
+    else if (this.notes)
+      displayedNotes = this.notes;
     return html`
       <div>
-        <vaadin-horizontal-layout id="categories-area">
-          <chips-comp .label="${"Personnel"}"></chips-comp>
-          <chips-comp .label="${"Santé"}"></chips-comp>
-          <chips-comp .label="${"Amour"}"></chips-comp>
-        </vaadin-horizontal-layout>
+        ${categories === null
+          ? html``
+          : html`
+            <vaadin-horizontal-layout id="categories-area">
+              ${ categories.map(category => html`<chips-comp .onDelete="${this.removeCategoryFilter}" .label="${category}"></chips-comp>`) }
+            </vaadin-horizontal-layout>
+          `
+        }
         ${ this.notes === null
           ? html`
 <!--            <link rel="stylesheet" href="https://unpkg.com/css-skeletons@1.0.3/css/css-skeletons.min.css" />-->
@@ -77,7 +93,7 @@ export class HomeView extends LitElement {
                 --c-w: 100%;
               "
             ></div>`
-          : this.notes.map(note => html`
+          : displayedNotes.map(note => html`
               <note-card .note="${note}" .onNoteDelete="${() => {
                 this.fetchNotes();
                 this.requestUpdate();
@@ -194,6 +210,17 @@ export class HomeView extends LitElement {
   async fetchNotes() {
     this.notes = await NoteEndpoint.findAll();
   }
+
+  removeCategoryFilter(category: string) {
+    if (router.location.params.categories as string) {
+      let categories = (router.location.params.categories as string).split(',');
+      categories = categories.filter(it => it !== category);
+      if (categories.length > 0)
+        Router.go('/notes/categories=' + categories.join(','));
+      else
+        Router.go('/notes')
+    }
+  }
 }
 
 @customElement('note-card')
@@ -293,7 +320,7 @@ export class NoteCard extends LitElement {
           <vaadin-horizontal-layout
             style="justify-content: space-between; align-items: center"
           >
-            <div class="category" style="color: ${note.color};"><a class="link">${note.category}</a></div>
+            <div class="category" style="color: ${note.color};"><a href="${"/notes/categories=" + note.category}" class="link">${note.category}</a></div>
             <vaadin-context-menu
               open-on="click"
               .items=${this.items}
