@@ -3,6 +3,7 @@ import { uiStore } from './stores/ui-store';
 import './views/main-layout';
 import './views/home/home-view';
 import './views/note/note-view';
+import './views/categories/categories-view';
 import './views/profile/profile-view';
 import './views/login/login-view';
 import { autorun } from "mobx";
@@ -52,6 +53,12 @@ export const views: ViewRoute[] = [
   {
     path: 'note/:id',
     component: 'note-view',
+  },
+  {
+    path: 'categories',
+    component: 'categories-view',
+    icon: 'vaadin:mailbox',
+    title: 'Catégories',
   },
   {
     path: 'profile',

@@ -2,7 +2,7 @@ import {
   customElement,
   html,
   css,
-  LitElement, state, query, property, internalProperty
+  LitElement, state, property, internalProperty
 } from 'lit-element';
 
 import '@vaadin/vaadin-text-field';
@@ -32,19 +32,21 @@ import { render } from 'lit-html';
 import { Router } from "@vaadin/router";
 import { router } from "Frontend/index";
 import { ContextMenuOpenedChanged } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
+import Category from "Frontend/generated/com/example/application/data/entity/Category";
+import {CategoryEndpoint} from "Frontend/generated/CategoryEndpoint";
 
 @customElement('home-view')
 export class HomeView extends LitElement {
   @state()
   private notes: Note[] | null = null;
   @state()
+  private categories: Category[] = [];
+  @state()
   private dialogOpened = false;
   @state()
   private newNoteTitle: string = '';
   @state()
-  private newNoteCategory: string = '';
-  @query('#add-task')
-  private addTaskInput!: HTMLInputElement
+  private newNoteCategory: Category | null = null;
 
   static styles = css`
    :host {
@@ -66,7 +68,7 @@ export class HomeView extends LitElement {
     if (router.location.params.categories as string) {
       categories = (router.location.params.categories as string).split(',');
       if (this.notes !== null)
-          displayedNotes = this.notes.filter(it => (categories as string[]).includes(it.category));
+          displayedNotes = this.notes.filter(it => (categories as string[]).includes(it.category.name));
       else
         displayedNotes = [];
     }
@@ -94,7 +96,7 @@ export class HomeView extends LitElement {
               "
             ></div>`
           : displayedNotes.map(note => html`
-              <note-card .note="${note}" .onNoteDelete="${() => {
+              <note-card .note="${note}" .categories="${this.categories}" .onNoteDelete="${() => {
                 this.fetchNotes();
                 this.requestUpdate();
               }}"></note-card>
@@ -126,19 +128,19 @@ export class HomeView extends LitElement {
                     placeholder="Catégorie de la note"
                     label="Catégorie"
                     .value="${this.newNoteCategory}"
-                    @change="${(e: Event) => this.newNoteCategory = (e.target as HTMLSelectElement).value}"
+                    @change="${(e: Event) => {
+                      const newNoteCategory = this.categories.find(it => it.id === parseInt((e.target as HTMLSelectElement).value));
+                      if (newNoteCategory)
+                        this.newNoteCategory = newNoteCategory;
+                    }}"
                     .renderer="${guard(
                       [],
                       () => (root: HTMLElement) =>
                         render(html`
                           <vaadin-list-box>
-                            <vaadin-item value="Épicerie">Épicerie</vaadin-item>
-                            <vaadin-item value="Work">Work</vaadin-item>
-                            <vaadin-item value="Personnel">Personnel</vaadin-item>
-                            <vaadin-item value="Épicerie">Épicerie</vaadin-item>
-                            <vaadin-item value="Santé">Santé</vaadin-item>
-                            <vaadin-item value="Sorties">Sorties</vaadin-item>
-                            <vaadin-item value="Autres">Autres</vaadin-item>
+                            ${ this.categories.map(
+                              category => html`<vaadin-item value="${category.id}">${category.name}</vaadin-item>`
+                            )}
                           </vaddin-list-box>
                         `, root
                         )
@@ -168,43 +170,27 @@ export class HomeView extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     this.notes = await NoteEndpoint.findAll();
+    this.categories = await CategoryEndpoint.findAll();
   }
 
   async createNote() {
     const note = {
       title: this.newNoteTitle,
       category: this.newNoteCategory,
-      color: this.getRandomColor(),
       todos: [],
       created: '', // date of creation is handle by server
     } as Note;
     // const createNote = await this.binder.submitTo(NoteEndpoint.save);
     const createdNote = await NoteEndpoint.save(note);
     if (createdNote) {
-      this.newNoteTitle = '';
-      this.newNoteCategory = '';
+      // this.newNoteTitle = '';
+      // this.newNoteCategory = null;
       if (this.notes !== null)
         this.notes = [createdNote, ...this.notes,];
       else
         this.notes = [createdNote];
       // this.binder.clear();
     }
-  }
-
-  getRandomColor(): string {
-    const colors = [
-      "crimson",
-      "lime",
-      "blue",
-      "aquamarine",
-      "deepskyblue",
-      "blueviolet",
-      "brown",
-      "darkcyan",
-      "darkgoldenrod",
-    ];
-    const random = Math.floor(Math.random() * colors.length);
-    return colors[random];
   }
 
   async fetchNotes() {
@@ -227,10 +213,12 @@ export class HomeView extends LitElement {
 export class NoteCard extends LitElement {
   @property()
   note: Note | null = null;
+  @property()
+  categories: Category[] = [];
   @state()
   private newNoteTitle: string = '';
   @state()
-  private newNoteCategory: string = '';
+  private newNoteCategory: Category | null = null;
   @state()
   private editDialogOpened = false;
   @state()
@@ -296,8 +284,8 @@ export class NoteCard extends LitElement {
       height: 100%;
       border-radius: 20px;
     }
-    .menu-button {
-      
+    a {
+      color: unset;
     }
     .link:hover {
       cursor: pointer;
@@ -316,11 +304,11 @@ export class NoteCard extends LitElement {
       else
         progressPct = 0;
       return html`
-        <div class="note-card" style="border-left-color: ${note.color}">
+        <div class="note-card" style="border-left-color: ${note.category.color}">
           <vaadin-horizontal-layout
             style="justify-content: space-between; align-items: center"
           >
-            <div class="category" style="color: ${note.color};"><a href="${"/notes/categories=" + note.category}" class="link">${note.category}</a></div>
+            <div class="category" style="color: ${note.category.color};"><a href="${"/notes/categories=" + note.category.name}" class="link">${note.category.name}</a></div>
             <vaadin-context-menu
               open-on="click"
               .items=${this.items}
@@ -340,7 +328,7 @@ export class NoteCard extends LitElement {
               <div>${nbItemsRemaining} restant${nbItemsRemaining > 1 ? 's' : ''}</div>
             </div>
             <div class="progress-bar">
-              <div style="width: ${progressPct}%; background-color: ${note.color};"></div>
+              <div style="width: ${progressPct}%; background-color: ${note.category.color};"></div>
             </div>
           </div>
           <vaadin-dialog
@@ -396,20 +384,20 @@ export class NoteCard extends LitElement {
                         placeholder="Catégorie de la note"
                         label="Catégorie"
                         .value="${this.newNoteCategory}"
-                        @change="${(e: Event) => this.newNoteCategory = (e.target as HTMLSelectElement).value}"
+                        @change="${(e: Event) => {
+                          const newNoteCategory = this.categories.find(it => it.id === parseInt((e.target as HTMLSelectElement).value));
+                          if (newNoteCategory)
+                            this.newNoteCategory = newNoteCategory;
+                        } }"
                         .renderer="${guard(
                           [],
                           () => (root: HTMLElement) =>
                             render(html`
                                 <vaadin-list-box>
-                                  <vaadin-item value="Épicerie">Épicerie</vaadin-item>
-                                  <vaadin-item value="Work">Work</vaadin-item>
-                                  <vaadin-item value="Personnel">Personnel</vaadin-item>
-                                  <vaadin-item value="Épicerie">Épicerie</vaadin-item>
-                                  <vaadin-item value="Santé">Santé</vaadin-item>
-                                  <vaadin-item value="Sorties">Sorties</vaadin-item>
-                                  <vaadin-item value="Autres">Autres</vaadin-item>
-                                  </vaddin-list-box>
+                                  ${ this.categories.map(
+                                    category => html`<vaadin-item value="${category.id}">${category.name}</vaadin-item>`
+                                  )}
+                                </vaddin-list-box>
                               `, root
                             )
                         )}"
@@ -482,16 +470,6 @@ export class NoteCard extends LitElement {
       }
     }
   }
-
-  private onClick = (e: MouseEvent) => {
-    // Prevent opening context menu on header row click.
-    if (
-      !this.contextMenuOpened
-      // && ((e.currentTarget as GridElement).getEventContext(e) as GridEventContext).section !== 'body'
-    ) {
-      e.stopPropagation();
-    }
-  };
 
   createItem(text: string, iconName: string, color: string, onClick: () => any) {
     const item = window.document.createElement('vaadin-context-menu-item');
