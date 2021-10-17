@@ -34,6 +34,7 @@ import { router } from "Frontend/index";
 import { ContextMenuOpenedChanged } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
 import Category from "Frontend/generated/com/example/application/data/entity/Category";
 import {CategoryEndpoint} from "Frontend/generated/CategoryEndpoint";
+import {CategoriesView} from "Frontend/views/categories/categories-view";
 
 @customElement('home-view')
 export class HomeView extends LitElement {
@@ -68,7 +69,7 @@ export class HomeView extends LitElement {
     if (router.location.params.categories as string) {
       categories = (router.location.params.categories as string).split(',');
       if (this.notes !== null)
-          displayedNotes = this.notes.filter(it => (categories as string[]).includes(it.category.name));
+          displayedNotes = this.notes.filter(it => (categories as string[]).includes(it.category ? it.category.name : 'Autres'));
       else
         displayedNotes = [];
     }
@@ -132,6 +133,8 @@ export class HomeView extends LitElement {
                       const newNoteCategory = this.categories.find(it => it.id === parseInt((e.target as HTMLSelectElement).value));
                       if (newNoteCategory)
                         this.newNoteCategory = newNoteCategory;
+                      else
+                        this.newNoteCategory = null;
                     }}"
                     .renderer="${guard(
                       [],
@@ -141,6 +144,8 @@ export class HomeView extends LitElement {
                             ${ this.categories.map(
                               category => html`<vaadin-item value="${category.id}">${category.name}</vaadin-item>`
                             )}
+                            <hr />
+                            <vaadin-item value="-1">Autre</vaadin-item>
                           </vaddin-list-box>
                         `, root
                         )
@@ -239,7 +244,7 @@ export class NoteCard extends LitElement {
           this.editDialogOpened = true;
           if (this.note) {
             this.newNoteTitle = this.note.title;
-            this.newNoteCategory = this.note.category;
+            this.newNoteCategory = this.note.category ? this.note.category : CategoriesView.defaultCategory;
           }
       })
     },
@@ -299,16 +304,18 @@ export class NoteCard extends LitElement {
       const nbItemsDone = note.todos.filter(it => it.done).length;
       const nbItemsRemaining = nbItems - nbItemsDone;
       let progressPct: number;
+
       if (nbItems != 0)
         progressPct = nbItemsDone / nbItems * 100;
       else
         progressPct = 0;
+      const noteCategory = this.note.category ? this.note.category : CategoriesView.defaultCategory;
       return html`
-        <div class="note-card" style="border-left-color: ${note.category.color}">
+        <div class="note-card" style="border-left-color: ${noteCategory.color}">
           <vaadin-horizontal-layout
             style="justify-content: space-between; align-items: center"
           >
-            <div class="category" style="color: ${note.category.color};"><a href="${"/notes/categories=" + note.category.name}" class="link">${note.category.name}</a></div>
+            <div class="category" style="color: ${noteCategory.color};"><a href="${"/notes/categories=" + noteCategory.name}" class="link">${noteCategory.name}</a></div>
             <vaadin-context-menu
               open-on="click"
               .items=${this.items}
@@ -316,7 +323,6 @@ export class NoteCard extends LitElement {
                 (this.contextMenuOpened = e.detail.value)}
             >
               <vaadin-button theme="icon tertiary" @click="${(e: Event) => e.preventDefault()}">
-                <!--                  <iron-icon class="icon" icon="lumo:menu"></iron-icon>-->
                 <iron-icon class="icon" icon="vaadin:ellipsis-dots-v"></iron-icon>
               </vaadin-button>
             </vaadin-context-menu>
@@ -328,7 +334,7 @@ export class NoteCard extends LitElement {
               <div>${nbItemsRemaining} restant${nbItemsRemaining > 1 ? 's' : ''}</div>
             </div>
             <div class="progress-bar">
-              <div style="width: ${progressPct}%; background-color: ${note.category.color};"></div>
+              <div style="width: ${progressPct}%; background-color: ${noteCategory.color};"></div>
             </div>
           </div>
           <vaadin-dialog
@@ -383,11 +389,13 @@ export class NoteCard extends LitElement {
                       <vaadin-select
                         placeholder="Catégorie de la note"
                         label="Catégorie"
-                        .value="${this.newNoteCategory}"
+                        value="${this.note?.category?.id || -1}"
                         @change="${(e: Event) => {
                           const newNoteCategory = this.categories.find(it => it.id === parseInt((e.target as HTMLSelectElement).value));
                           if (newNoteCategory)
                             this.newNoteCategory = newNoteCategory;
+                          else
+                            this.newNoteCategory = null;
                         } }"
                         .renderer="${guard(
                           [],
@@ -397,6 +405,8 @@ export class NoteCard extends LitElement {
                                   ${ this.categories.map(
                                     category => html`<vaadin-item value="${category.id}">${category.name}</vaadin-item>`
                                   )}
+                                  <hr />
+                                  <vaadin-item value="-1">Autre</vaadin-item>
                                 </vaddin-list-box>
                               `, root
                             )

@@ -3,6 +3,7 @@ package com.example.application.data.entity;
 import com.example.application.data.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -19,8 +20,9 @@ public class Note extends AbstractEntity {
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
     private List<Todo> todos;
 
+    @Nullable
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     public Note() { }

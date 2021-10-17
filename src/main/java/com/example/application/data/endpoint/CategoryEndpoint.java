@@ -21,4 +21,6 @@ public class CategoryEndpoint {
     public Optional<Category> findById(Integer id) { return repository.findById(id); }
 
     public Category save(Category category) { return repository.save(category); }
+
+    public void delete(Category category) { repository.delete(category); }
 }

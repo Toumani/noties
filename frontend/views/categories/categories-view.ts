@@ -31,6 +31,10 @@ export class CategoriesView extends LitElement {
   @state()
   private newCategoryColor: string = 'crimson';
 
+  static defaultCategory = {
+    name: 'Autres', color: '#aaaaaa'
+  } as Category
+
   static colors = [
     { code: 'crimson', name: 'Cramoisie'},
     { code: 'lime', name: 'Chaux'},
@@ -40,12 +44,16 @@ export class CategoriesView extends LitElement {
     { code: 'brown', name: 'Marron'},
     { code: 'darkcyan', name: 'Cyan foncé'},
     { code: 'darkgoldenrod', name: 'Rouge doré foncé'},
-  ]
+  ];
 
   static styles = css`
     :host {
       display: block;
       padding: var(--lumo-space-m) var(--lumo-space-l);
+    }
+    a {
+      text-decoration: unset;
+      color: unset;
     }
   `;
 
@@ -54,8 +62,31 @@ export class CategoriesView extends LitElement {
       <h1>Catégories</h1>
       <vaadin-horizontal-layout style="flex-flow: row wrap;">
         ${this.categories.map(category => html`
-          <category-card .category="${category}"></category-card>
+          <category-card
+            .category="${category}"
+            .onCategoryDelete="${async () => {
+              this.categories = await CategoryEndpoint.findAll();
+              await this.requestUpdate();
+            }}"
+          ></category-card>
         `)}
+        <vaadin-vertical-layout
+          style="
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+            align-items: center;
+            padding: 10px 0;
+            background: rgb(255,255,255);
+            border-radius: 5px;
+            box-shadow: 0 0 20px #ccc;
+            background: linear-gradient(157deg, rgba(144,144,144,1) 0%, rgba(196,196,196,1) 69%, rgba(134,134,134,1) 100%);
+          "
+        >
+          <a href="${"/notes/categories=Autre"}">
+            <h2>Autre</h2>
+          </a>
+        </vaadin-vertical-layout>
       </vaadin-horizontal-layout>
       <fab-comp .icon="${'lumo:plus'}" .onMouseClick="${() => (this.dialogOpened = true)}"></fab-comp>
       <vaadin-dialog
@@ -126,12 +157,18 @@ export class CategoriesView extends LitElement {
 export class CategoryCard extends LitElement {
   @property()
   category: Category | null = null;
+  @property()
+  private onCategoryDelete: () => void = () => {}
   @state()
   private newCategoryName: string = '';
   @state()
   private newCategoryColor: string = '';
   @state()
   private editDialogOpened = false;
+  @state()
+  private deleteDialogOpened = false;
+  @state()
+  private notificationOpened = false;
   @state()
   private contextMenuOpened?: boolean;
 
@@ -150,7 +187,7 @@ export class CategoryCard extends LitElement {
           }
         })
     },
-    // { component: this.createItem('Supprimer', 'vaadin:trash', 'var(--lumo-error-text-color)', () => { this.deleteDialogOpened = true; }) },
+    { component: this.createItem('Supprimer', 'vaadin:trash', 'var(--lumo-error-text-color)', () => { this.deleteDialogOpened = true; }) },
   ];
 
   static styles = css`
@@ -240,6 +277,54 @@ export class CategoryCard extends LitElement {
                 root
               );})}"
           ></vaadin-dialog>
+          <vaadin-dialog
+            aria-lable="Supprimer une catégorie"
+            .opened="${this.deleteDialogOpened}"
+            @opened-changed="${(e: CustomEvent) => (this.deleteDialogOpened = e.detail.value)}"
+            .renderer="${guard([], () => (root: HTMLElement) => {
+              render(
+                html`
+                <vaadin-vertical-layout>
+                  <h3>Supprimer une catégorie ?</h3>
+                  <p style="padding: var(--lumo-space-l) 0;">Supprimer la catégorie ${this.category?.name} ?</p>
+                  <vaadin-horizontal-layout
+                    style="justify-content: flex-end; width: 100%;"
+                  >
+                    <vaadin-button theme="tertiary" @click="${() => (this.deleteDialogOpened = false)}">Annuler</vaadin-button>
+                    <vaadin-button
+                      theme="primary error"
+                      style="margin-left: var(--lumo-space-m);"
+                      @click="${() => {
+                        this.deleteCategory();
+                        this.deleteDialogOpened = false;
+                      }}"
+                    >Supprimer</vaadin-button>
+                  </vaadin-horizontal-layout>
+                </vaadin-vertical-layout>
+              `, root
+              );
+            })}"
+          ></vaadin-dialog>
+          <vaadin-notification
+            theme="success"
+            position="bottom-center"
+            .opened="${this.notificationOpened}"
+            @opened-changed="${(e: any) => (this.notificationOpened = e.detail.value)}"
+            .renderer="${guard([], () => (root: HTMLElement) => {
+              render(
+                html`
+                  <div>Catégorie supprimée</div>
+                  <vaadin-button
+                    theme="tertiary-inline"
+                    @click="${() => (this.notificationOpened = false)}"
+                    aria-label="Close"
+                  >
+                    <iron-icon icon="lumo:cross"></iron-icon>
+                  </vaadin-button>
+                `, root
+              );
+            })}"
+          ></vaadin-notification>
         </vaadin-vertical-layout>
       `;
     else
@@ -265,6 +350,18 @@ export class CategoryCard extends LitElement {
     const updatedCategory = await CategoryEndpoint.save(category);
     if (updatedCategory) {
       this.category = {...updatedCategory};
+    }
+  }
+
+  private async deleteCategory() {
+    if (this.category) {
+      try {
+        await CategoryEndpoint.delete(this.category);
+        this.notificationOpened = true;
+        this.onCategoryDelete();
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
