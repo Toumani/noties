@@ -1,7 +1,7 @@
-package com.example.application.data.endpoint;
+package com.kststudios.noties.data.endpoint;
 
-import com.example.application.data.entity.Note;
-import com.example.application.data.service.NoteRepository;
+import com.kststudios.noties.data.entity.Note;
+import com.kststudios.noties.data.service.NoteRepository;
 import com.vaadin.flow.server.connect.Endpoint;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;

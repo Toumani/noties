@@ -1,4 +1,4 @@
-package com.example.application;
+package com.kststudios.noties;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.PWA;
@@ -17,7 +17,7 @@ import com.vaadin.flow.theme.Theme;
  *
  */
 @SpringBootApplication
-@Theme(value = "vaadintodo")
+@Theme(value = "noties")
 @PWA(name = "Noties", shortName = "Noties", offlineResources = {"images/logo.png"})
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 

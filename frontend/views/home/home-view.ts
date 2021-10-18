@@ -25,14 +25,14 @@ import { ContextMenuItem } from '@vaadin/vaadin-context-menu/vaadin-context-menu
 import '../../components/Fab';
 import '../../components/Chips';
 
-import Note from "Frontend/generated/com/example/application/data/entity/Note";
+import Note from "Frontend/generated/com/kststudios/noties/data/entity/Note";
 import { NoteEndpoint } from "Frontend/generated/NoteEndpoint";
 import { guard } from "lit-html/directives/guard";
 import { render } from 'lit-html';
 import { Router } from "@vaadin/router";
 import { router } from "Frontend/index";
 import { ContextMenuOpenedChanged } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
-import Category from "Frontend/generated/com/example/application/data/entity/Category";
+import Category from "Frontend/generated/com/kststudios/noties/data/entity/Category";
 import {CategoryEndpoint} from "Frontend/generated/CategoryEndpoint";
 import {CategoriesView} from "Frontend/views/categories/categories-view";
 

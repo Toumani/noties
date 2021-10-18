@@ -1,6 +1,6 @@
-package com.example.application.data.entity;
+package com.kststudios.noties.data.entity;
 
-import com.example.application.data.AbstractEntity;
+import com.kststudios.noties.data.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.Entity;

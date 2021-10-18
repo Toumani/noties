@@ -1,7 +1,7 @@
-package com.example.application.data.endpoint;
+package com.kststudios.noties.data.endpoint;
 
-import com.example.application.data.entity.Category;
-import com.example.application.data.service.CategoryRepository;
+import com.kststudios.noties.data.entity.Category;
+import com.kststudios.noties.data.service.CategoryRepository;
 import com.vaadin.flow.server.connect.Endpoint;
 import org.springframework.data.domain.Sort;
 

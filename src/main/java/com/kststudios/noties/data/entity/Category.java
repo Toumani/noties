@@ -1,6 +1,6 @@
-package com.example.application.data.entity;
+package com.kststudios.noties.data.entity;
 
-import com.example.application.data.AbstractEntity;
+import com.kststudios.noties.data.AbstractEntity;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;

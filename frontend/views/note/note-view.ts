@@ -14,10 +14,10 @@ import '@vaadin/vaadin-item/vaadin-item';
 import { router } from "Frontend/index";
 import '../../components/Fab';
 
-import Note from "Frontend/generated/com/example/application/data/entity/Note";
+import Note from "Frontend/generated/com/kststudios/noties/data/entity/Note";
 import {NoteEndpoint} from "Frontend/generated/NoteEndpoint";
-import TodoModel from "Frontend/generated/com/example/application/data/entity/TodoModel";
-import Todo from "Frontend/generated/com/example/application/data/entity/Todo";
+import TodoModel from "Frontend/generated/com/kststudios/noties/data/entity/TodoModel";
+import Todo from "Frontend/generated/com/kststudios/noties/data/entity/Todo";
 import * as TodoEndpoint from "Frontend/generated/TodoEndpoint";
 
 @customElement('note-view')

@@ -15,7 +15,7 @@ import '@vaadin/vaadin-notification/vaadin-notification';
 import { ContextMenuItem } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
 import { ContextMenuOpenedChanged } from '@vaadin/vaadin-context-menu/vaadin-context-menu';
 
-import Category from "Frontend/generated/com/example/application/data/entity/Category";
+import Category from "Frontend/generated/com/kststudios/noties/data/entity/Category";
 import {CategoryEndpoint} from "Frontend/generated/CategoryEndpoint";
 
 import '../../components/Fab';
@@ -32,7 +32,7 @@ export class CategoriesView extends LitElement {
   private newCategoryColor: string = 'crimson';
 
   static defaultCategory = {
-    name: 'Autres', color: '#aaaaaa'
+    name: 'Autres', color: '#333333'
   } as Category
 
   static colors = [
