@@ -1,10 +1,10 @@
-package com.example.application.data.entity;
+package com.kststudios.noties.data.entity;
 
-import com.example.application.data.AbstractEntity;
+import com.kststudios.noties.data.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.annotation.Nullable;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,12 +15,15 @@ public class Note extends AbstractEntity {
     @NotBlank
     private String title;
     private LocalDateTime created;
-    private String category;
-    private String color;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "note")
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
     private List<Todo> todos;
+
+    @Nullable
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     public Note() { }
 
@@ -35,11 +38,8 @@ public class Note extends AbstractEntity {
     public LocalDateTime getCreated() { return created; }
     public void setCreated(LocalDateTime created) { this.created = created; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-
-    public String getColor() { return color; }
-    public void setColor(String color) { this.color = color; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
     public List<Todo> getTodos() { return todos; }
     public void setTodos(List<Todo> todos) { this.todos = todos; }

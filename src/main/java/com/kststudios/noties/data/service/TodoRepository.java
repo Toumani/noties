@@ -1,6 +1,6 @@
-package com.example.application.data.service;
+package com.kststudios.noties.data.service;
 
-import com.example.application.data.entity.Todo;
+import com.kststudios.noties.data.entity.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TodoRepository extends JpaRepository<Todo, Integer> {

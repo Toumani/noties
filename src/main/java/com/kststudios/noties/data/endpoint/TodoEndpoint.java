@@ -1,7 +1,7 @@
-package com.example.application.data.endpoint;
+package com.kststudios.noties.data.endpoint;
 
-import com.example.application.data.entity.Todo;
-import com.example.application.data.service.TodoRepository;
+import com.kststudios.noties.data.entity.Todo;
+import com.kststudios.noties.data.service.TodoRepository;
 import com.vaadin.flow.server.connect.Endpoint;
 
 import javax.annotation.security.PermitAll;

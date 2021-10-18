@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Vaadin project from https://start.vaadin.com/project/6a5c79cc-ac67-433e-8276-449a1a0d347e -->
-    <groupId>com.example.application</groupId>
-    <artifactId>vaadintodo</artifactId>
-    <name>Project base for Spring Boot and Vaadin Flow</name>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.kststudios.noties</groupId>
+    <artifactId>noties</artifactId>
+    <name>Noties</name>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -87,8 +87,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
 
         <dependency>

@@ -14,10 +14,10 @@ import '@vaadin/vaadin-item/vaadin-item';
 import { router } from "Frontend/index";
 import '../../components/Fab';
 
-import Note from "Frontend/generated/com/example/application/data/entity/Note";
+import Note from "Frontend/generated/com/kststudios/noties/data/entity/Note";
 import {NoteEndpoint} from "Frontend/generated/NoteEndpoint";
-import TodoModel from "Frontend/generated/com/example/application/data/entity/TodoModel";
-import Todo from "Frontend/generated/com/example/application/data/entity/Todo";
+import TodoModel from "Frontend/generated/com/kststudios/noties/data/entity/TodoModel";
+import Todo from "Frontend/generated/com/kststudios/noties/data/entity/Todo";
 import * as TodoEndpoint from "Frontend/generated/TodoEndpoint";
 
 @customElement('note-view')
@@ -40,53 +40,68 @@ export class NoteView extends LitElement {
  `;
 
   render() {
-    if (this.viewingNote)
-      return html`
-        <vaadin-button @click="${() => Router.go('/notes')}">
-          <iron-icon class="icon" icon="lumo:arrow-left"></iron-icon>
-          Retour
-        </vaadin-button>
-        <h1>${this.viewingNote.title}</h1>
-        <vaadin-vertical-layout
-          style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
+    return html`
+      <vaadin-button @click="${() => Router.go('/notes')}">
+        <iron-icon class="icon" icon="lumo:arrow-left"></iron-icon>
+        Retour
+      </vaadin-button>
+      ${ this.viewingNote ?
+      html`
+        <vaadin-horizontal-layout
+          style="justify-content: space-between; align-items: center;"
         >
-          ${this.viewingNote.todos.map((todo, index) => html`
-            <task-card
-              .task="${todo}"
-              .edit="${this.editNote}"
-              .index="${index}"
-              .viewingNote="${this.viewingNote}"
-              .onTaskUpdate="${this.updateTask}"
-              .onTaskDelete="${(note: Note, index: number) => {
-                this.deleteTask(note, index);
-                this.requestUpdate();
-              }}"
-            ></task-card>`)}
-  
-          ${this.editNote ? html`
-              <vaadin-horizontal-layout style="width: 100%;">
-                <vaadin-text-field
-                  id="add-task"
-                  style="flex-grow: 1; margin-right: var(${'--lumo-space-s'});"
-                  ...="${field(this.taskBinder.model.task)}"
-                ></vaadin-text-field>
-                <vaadin-button
-                  theme="primary"
-                  @click="${this.addTask}"
-                  ?disabled="${this.taskBinder.invalid}"
-                >Add task
-                </vaadin-button>
-              </vaadin-horizontal-layout>`
-            : html``
-          }
-        </vaadin-vertical-layout>
-        <fab-comp .icon="${this.editNote ? 'lumo:checkmark' : 'lumo:edit'}"
-                  .onMouseClick="${() => (this.editNote = !this.editNote)}"></fab-comp>
-      `;
-    else {
-      // TODO display skeleton
-      return html`<span>NULL</span>`;
-    }
+          <h1>${this.viewingNote.title}</h1>
+          <vaadin-button theme="icon${this.editNote ? " success" : ""}" @click="${() => this.editNote = !this.editNote}">
+            <iron-icon class="icon" icon="lumo:${this.editNote ? "checkmark" : "edit"}"></iron-icon>
+          </vaadin-button>
+        </vaadin-horizontal-layout>
+      <vaadin-vertical-layout
+        style="width: 100%; align-items: stretch; padding-bottom: 15vh;"
+      >
+        ${this.viewingNote.todos.map((todo, index) => html`
+          <task-card
+            .task="${todo}"
+            .edit="${this.editNote}"
+            .index="${index}"
+            .viewingNote="${this.viewingNote}"
+            .onTaskUpdate="${this.updateTask}"
+            .onTaskDelete="${(note: Note, index: number) => {
+              this.deleteTask(note, index);
+              this.requestUpdate();
+            }}"
+          ></task-card>`)}
+
+        ${this.editNote ? html`
+            <vaadin-horizontal-layout style="width: 100%;">
+              <vaadin-text-field
+                id="add-task"
+                style="flex-grow: 1; margin-right: var(${'--lumo-space-s'});"
+                ...="${field(this.taskBinder.model.task)}"
+              ></vaadin-text-field>
+              <vaadin-button
+                theme="primary"
+                @click="${this.addTask}"
+                ?disabled="${this.taskBinder.invalid}"
+              >Add task
+              </vaadin-button>
+            </vaadin-horizontal-layout>`
+          : html``
+        }
+      </vaadin-vertical-layout>
+      `
+        
+      :
+      html`
+<!--        <link rel="stylesheet" href="https://unpkg.com/css-skeletons@1.0.3/css/css-skeletons.min.css" />-->
+        <div
+          class="skeleton skeleton-list"
+          style="
+            --lines: 5;
+            --c-w: 100%;
+          "
+        ></div>
+      `}
+    `;
   }
 
   async connectedCallback() {
